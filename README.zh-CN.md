@@ -5,6 +5,12 @@
 
 分支：`LTOG_cn_20261029`。
 
+## 安装包下载
+
+[GitHub Releases 中文版 2.0.0](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029)
+提供经过 Windows 构建、静默安装和主窗口启动验证的完整安装包、中文更新说明及 SHA256 校验文件。
+[直接下载安装包](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe)。
+
 ## 本次修改
 
 - 汉化磁带机、磁带、搜索、日志、设置、关于、索引查看器、文件属性及搜索筛选窗口。

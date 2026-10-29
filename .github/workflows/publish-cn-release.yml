@@ -1,0 +1,119 @@
+name: Publish verified Chinese installer
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/publish-cn-release.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-cn-v2.0.0-20261029
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  RELEASE_TAG: cn-v2.0.0-20261029
+  VERIFIED_COMMIT: 2b3a98f5581a0081a0d3bed0ca18791a414273a7
+  VERIFIED_RUN: '40839094553'
+  INSTALLER_SHA256: b2025380a3cdf6d9523e91f9391158d4c8311dcc39e5a24a68c239aaa410b8b2
+
+jobs:
+  publish:
+    name: Publish the installer that passed Windows validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out release configuration
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify source and successful Windows build
+        run: |
+          git merge-base --is-ancestor "$VERIFIED_COMMIT" HEAD
+          git diff --exit-code "$VERIFIED_COMMIT" HEAD -- src build.ps1 installer tests/UiChecks
+          gh api "repos/$GH_REPO/actions/runs/$VERIFIED_RUN" > verified-run.json
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          run = json.loads(Path('verified-run.json').read_text())
+          assert run['repository']['full_name'] == os.environ['GH_REPO']
+          assert run['head_sha'] == os.environ['VERIFIED_COMMIT']
+          assert run['head_branch'] == 'LTOG_cn_20261029'
+          assert run['status'] == 'completed' and run['conclusion'] == 'success'
+          print('Verified source matches the successful Windows build.')
+          PY
+
+      - name: Download the original verified installer
+        uses: actions/download-artifact@v4
+        with:
+          name: LTOG-cn-windows-x64-2b3a98f5581a0081a0d3bed0ca18791a414273a7
+          run-id: '40839094553'
+          github-token: ${{ github.token }}
+          path: verified-package
+
+      - name: Verify checksum and prepare release assets
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, shutil
+          from pathlib import Path
+          package = Path('verified-package')
+          info_file = package / 'artifacts/build-info.json'
+          info = json.loads(info_file.read_text(encoding='utf-8-sig'))
+          assert info['commit'] == os.environ['VERIFIED_COMMIT']
+          assert info['installer'] == 'LTOG-2.0.0-setup.exe'
+          assert info['sha256'] == os.environ['INSTALLER_SHA256']
+          assert info['run'] == f"https://github.com/{os.environ['GH_REPO']}/actions/runs/{os.environ['VERIFIED_RUN']}"
+          installer = package / 'installer/Output' / info['installer']
+          assert installer.stat().st_size == info['bytes'] == 58520441
+          assert hashlib.sha256(installer.read_bytes()).hexdigest() == info['sha256']
+          assets = Path('release-assets')
+          assets.mkdir()
+          shutil.copy2(installer, assets / installer.name)
+          shutil.copy2(info_file, assets / info_file.name)
+          (assets / 'SHA256SUMS.txt').write_text(f"{info['sha256']}  {installer.name}\n", encoding='utf-8')
+          print(f"Verified installer: {installer.name}, SHA256 {info['sha256']}")
+          PY
+
+      - name: Prepare a draft release
+        id: release
+        run: |
+          if gh release view "$RELEASE_TAG" --json isDraft,targetCommitish > existing-release.json; then
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          release = json.loads(Path('existing-release.json').read_text())
+          assert release['targetCommitish'] == os.environ['VERIFIED_COMMIT']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"draft={str(release['isDraft']).lower()}\n")
+          PY
+          else
+            gh release create "$RELEASE_TAG" --draft --target "$VERIFIED_COMMIT" \
+              --title 'LTOG 中文版 2.0.0（2026-10-29）' \
+              --notes-file docs/releases/cn-v2.0.0-20261029.md
+            echo 'draft=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload release assets
+        if: steps.release.outputs.draft == 'true'
+        run: gh release upload "$RELEASE_TAG" release-assets/* --clobber
+
+      - name: Verify the uploaded installer
+        run: |
+          gh release download "$RELEASE_TAG" --pattern LTOG-2.0.0-setup.exe --dir uploaded-check
+          printf '%s  %s\n' "$INSTALLER_SHA256" uploaded-check/LTOG-2.0.0-setup.exe | sha256sum --check
+
+      - name: Publish the verified release
+        if: steps.release.outputs.draft == 'true'
+        run: gh release edit "$RELEASE_TAG" --draft=false --latest
+
+      - name: Record permanent download links
+        run: |
+          gh release view "$RELEASE_TAG" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
+          echo "Installer: https://github.com/$GH_REPO/releases/download/$RELEASE_TAG/LTOG-2.0.0-setup.exe" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA256: $INSTALLER_SHA256" >> "$GITHUB_STEP_SUMMARY"
