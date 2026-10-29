@@ -1,0 +1,3 @@
+# Downloaded prerequisites (fetched by build-installer.ps1) and compiled output.
+redist/
+Output/

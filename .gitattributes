@@ -1,0 +1,11 @@
+# Files that must keep LF endings regardless of the cloning git's autocrlf:
+# the patch series is applied byte-exact, and MSYS2 bash rejects CRLF scripts.
+*.patch text eol=lf
+*.sh    text eol=lf
+*.pc    text eol=lf
+
+# PowerShell is happiest with CRLF
+*.ps1   text eol=crlf
+
+# Sensible default for everything else
+*       text=auto

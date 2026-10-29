@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-gui:
+    name: Build GUI
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~\.nuget\packages
+          key: nuget-${{ hashFiles('src/LTOG.csproj') }}
+          restore-keys: nuget-
+
+      - name: Build GUI
+        working-directory: src
+        run: dotnet build LTOG.csproj -c Release -p:Platform=x64 --nologo

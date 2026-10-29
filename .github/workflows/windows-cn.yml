@@ -1,0 +1,99 @@
+name: Windows Chinese installer
+
+on:
+  push:
+    branches: [LTOG_cn_20261029]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-cn-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-installer:
+    name: Build and verify Windows x64 installer
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify backend matches upstream
+        run: |
+          git fetch --no-tags https://github.com/rlaphoenix/LTOG.git 85756fe86b6e3581785f5630dfdc758c84adedc2
+          if ($LASTEXITCODE -ne 0) { throw 'Could not fetch the upstream verification baseline.' }
+          git diff --exit-code 85756fe86b6e3581785f5630dfdc758c84adedc2 -- src/Core src/ViewModels/DriveStore.cs src/ViewModels/SchemaParser.cs src/ViewModels/Catalog.cs src/App.xaml.cs
+          if ($LASTEXITCODE -ne 0) { throw 'Backend differs from the upstream baseline.' }
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~\.nuget\packages
+          key: windows-cn-nuget-${{ hashFiles('src/LTOG.csproj') }}
+          restore-keys: windows-cn-nuget-
+
+      - name: Test completion notifications
+        run: |
+          dotnet run --project tests/UiChecks/UiChecks.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { throw 'UI notification checks failed.' }
+
+      - name: Build complete installer
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          pwsh -NoProfile -ExecutionPolicy Bypass -File build.ps1 -Version 2.0.0 *>&1 | Tee-Object artifacts/build-windows.log
+          if ($LASTEXITCODE -ne 0) { throw 'Windows installer build failed.' }
+
+      - name: Verify installation and application startup
+        run: |
+          ./scripts/Test-WindowsPackage.ps1 -InstallerPath installer/Output/LTOG-2.0.0-setup.exe -LogDirectory artifacts
+
+      - name: Record build identity and checksum
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          $installer = Get-Item installer/Output/LTOG-2.0.0-setup.exe
+          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $($installer.Name)" | Set-Content artifacts/SHA256SUMS.txt -Encoding utf8
+          @{
+            commit = $env:BUILD_COMMIT
+            run = $env:BUILD_URL
+            installer = $installer.Name
+            sha256 = $hash
+            bytes = $installer.Length
+            validation = 'Windows x64 build, notification checks, silent installation and GUI startup; no tape hardware I/O test'
+          } | ConvertTo-Json | Set-Content artifacts/build-info.json -Encoding utf8
+          "Installer: $($installer.Name)`n`nCommit: $env:BUILD_COMMIT`n`nSHA256: $hash" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: LTOG-cn-windows-x64-${{ github.sha }}
+          path: |
+            installer/Output/LTOG-2.0.0-setup.exe
+            artifacts/SHA256SUMS.txt
+            artifacts/build-info.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LTOG-cn-build-logs-${{ github.run_id }}
+          path: artifacts/*.log
+          if-no-files-found: ignore
+          retention-days: 14

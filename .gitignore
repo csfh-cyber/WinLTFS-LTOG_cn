@@ -1,0 +1,8 @@
+# Build output (binaries, runtime DLLs, generated ltfs.conf)
+/dist/
+/dist24/
+
+# Logs and editor leftovers
+*.log
+*.swp
+.vs/

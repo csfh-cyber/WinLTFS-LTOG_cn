@@ -1,0 +1,69 @@
+name: cd
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build and publish installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Validate version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $version = $tag -replace '^v', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') {
+            throw "Tag must look like v1.0.0 or v1.0.0.0. Got '$tag'."
+          }
+          "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+          "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~\.nuget\packages
+          key: nuget-${{ hashFiles('src/LTOG.csproj') }}
+          restore-keys: nuget-
+
+      - name: Build installer
+        shell: pwsh
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -Version $env:RELEASE_VERSION
+
+      - name: Locate installer
+        id: installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem .\installer\Output -Filter "LTOG-$env:RELEASE_VERSION-setup.exe" |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $installer) {
+            throw "Installer not found in installer\Output."
+          }
+          "path=$($installer.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:RELEASE_TAG "${{ steps.installer.outputs.path }}" `
+            --target "${{ github.sha }}" `
+            --title "$env:RELEASE_TAG" `
+            --latest

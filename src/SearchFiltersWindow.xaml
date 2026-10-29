@@ -1,0 +1,146 @@
+<Window
+    x:Class="LTOG.SearchFiltersWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="搜索筛选条件">
+
+    <!-- fixed-size window (see ClientSize): laid out for the tallest state, every criterion on "Between" -->
+    <Grid x:Name="Root" Language="zh-CN" Padding="24,20,24,0">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="Escape" Invoked="Close_Invoked" />
+        </Grid.KeyboardAccelerators>
+        <Grid.Resources>
+            <Style x:Key="Label" TargetType="TextBlock" BasedOn="{StaticResource BodyStrongTextBlockStyle}">
+                <Setter Property="Margin" Value="0,0,0,6" />
+            </Style>
+            <Style x:Key="And" TargetType="TextBlock">
+                <Setter Property="Text" Value="至" />
+                <Setter Property="Opacity" Value="0.7" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="0,8,0,0" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- how the name is matched, and what kind of item -->
+        <StackPanel>
+            <TextBlock Text="匹配方式" Style="{StaticResource Label}" />
+            <CheckBox x:Name="PartialBox" Content="部分匹配" />
+            <CheckBox x:Name="CaseBox" Content="区分大小写" />
+            <CheckBox x:Name="AnyWordBox" Content="任意词" />
+            <CheckBox x:Name="DiacriticsBox" Content="忽略变音符号" />
+            <CheckBox x:Name="WildcardsBox" Content="通配符（* 和 ?）" />
+            <CheckBox x:Name="RegexBox" Content="正则表达式" />
+            <CheckBox x:Name="FuzzyBox" Content="模糊匹配" />
+            <TextBlock Text="类型" Style="{StaticResource Label}" Margin="0,20,0,6" />
+            <ComboBox x:Name="TypeBox" HorizontalAlignment="Stretch" AutomationProperties.Name="类型" />
+        </StackPanel>
+
+        <Border Grid.Column="1" Width="1" Margin="24,0"
+                Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+        <!-- date / time / size: operator on the left, its values beside it, the second value under the first -->
+        <Grid Grid.Column="2" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.ColumnSpan="2" Text="修改日期" Style="{StaticResource Label}" />
+            <ComboBox x:Name="DateOp" Grid.Row="1" HorizontalAlignment="Stretch" AutomationProperties.Name="修改日期">
+                <x:String>不限</x:String>
+                <x:String>指定日期</x:String>
+                <x:String>之前</x:String>
+                <x:String>之后</x:String>
+                <x:String>介于</x:String>
+                <x:String>不在范围内</x:String>
+                <x:String>最近</x:String>
+            </ComboBox>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <CalendarDatePicker x:Name="DateA" AutomationProperties.Name="日期" />
+                <NumberBox x:Name="DateDays" Minimum="1" MinWidth="100" SpinButtonPlacementMode="Compact"
+                           AutomationProperties.Name="天数" />
+                <TextBlock x:Name="DateDaysLabel" Text="天" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock x:Name="DateAnd" Grid.Row="2" Style="{StaticResource And}" />
+            <CalendarDatePicker x:Name="DateB" Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"
+                                AutomationProperties.Name="结束日期" />
+
+            <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Text="修改时刻" Style="{StaticResource Label}" Margin="0,24,0,6" />
+            <ComboBox x:Name="TimeOp" Grid.Row="4" HorizontalAlignment="Stretch" AutomationProperties.Name="修改时刻">
+                <x:String>不限</x:String>
+                <x:String>等于</x:String>
+                <x:String>之前</x:String>
+                <x:String>之后</x:String>
+                <x:String>介于</x:String>
+                <x:String>不在范围内</x:String>
+                <x:String>前后 1 小时</x:String>
+                <x:String>前后 6 小时</x:String>
+                <x:String>最近</x:String>
+            </ComboBox>
+            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <TimePicker x:Name="TimeA" AutomationProperties.Name="时间" />
+                <NumberBox x:Name="TimeHours" Minimum="1" MinWidth="100" SpinButtonPlacementMode="Compact"
+                           AutomationProperties.Name="小时数" />
+                <TextBlock x:Name="TimeHoursLabel" Text="小时" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock x:Name="TimeAnd" Grid.Row="5" Style="{StaticResource And}" />
+            <TimePicker x:Name="TimeB" Grid.Row="5" Grid.Column="1" Margin="0,8,0,0"
+                        AutomationProperties.Name="结束时间" />
+
+            <TextBlock Grid.Row="6" Grid.ColumnSpan="2" Text="大小" Style="{StaticResource Label}" Margin="0,24,0,6" />
+            <ComboBox x:Name="SizeOp" Grid.Row="7" HorizontalAlignment="Stretch" AutomationProperties.Name="大小">
+                <x:String>不限</x:String>
+                <x:String>等于</x:String>
+                <x:String>小于</x:String>
+                <x:String>大于</x:String>
+                <x:String>介于</x:String>
+                <x:String>不在范围内</x:String>
+                <x:String>± 25%</x:String>
+                <x:String>± 50%</x:String>
+            </ComboBox>
+            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <NumberBox x:Name="SizeA" Minimum="0" Width="130" AutomationProperties.Name="大小值" />
+                <ComboBox x:Name="SizeUnit" MinWidth="90" AutomationProperties.Name="单位">
+                    <x:String>B</x:String>
+                    <x:String>KiB</x:String>
+                    <x:String>MiB</x:String>
+                    <x:String>GiB</x:String>
+                    <x:String>TiB</x:String>
+                </ComboBox>
+            </StackPanel>
+            <TextBlock x:Name="SizeAnd" Grid.Row="8" Style="{StaticResource And}" />
+            <NumberBox x:Name="SizeB" Grid.Row="8" Grid.Column="1" Minimum="0" Width="130" Margin="0,8,0,0"
+                       HorizontalAlignment="Left" AutomationProperties.Name="第二个大小值" />
+        </Grid>
+
+        <!-- footer -->
+        <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="-24,20,-24,0" Padding="24,16"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
+            <Button Content="重置" Click="Reset_Click" MinWidth="90" />
+            <Button Content="关闭" Click="Close_Click" MinWidth="90" HorizontalAlignment="Right"
+                    Style="{StaticResource AccentButtonStyle}" />
+        </Grid>
+    </Grid>
+</Window>

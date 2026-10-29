@@ -1,0 +1,101 @@
+<UserControl Language="zh-CN"
+    x:Class="LTOG.TapesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LTOG">
+
+    <ScrollViewer Padding="16,0">
+        <StackPanel Spacing="12" MaxWidth="960" Margin="0,12">
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Content="打开文件夹" Click="OpenWorkFolder_Click" />
+                <Button Grid.Column="1" Content="刷新" Click="RefreshSchemas_Click" />
+                <ComboBox x:Name="SchemaSortCombo" Grid.Column="3" MinWidth="170"
+                          SelectionChanged="SchemaSort_Changed">
+                    <ComboBoxItem Content="名称（升序）" />
+                    <ComboBoxItem Content="名称（降序）" />
+                    <ComboBoxItem Content="修改时间（从新到旧）" />
+                    <ComboBoxItem Content="修改时间（从旧到新）" />
+                </ComboBox>
+            </Grid>
+            <TextBlock x:Name="NoSchemasText" Text="尚未保存索引快照。"
+                       Opacity="0.6" Margin="2,0" />
+            <ItemsControl x:Name="SchemaList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:SchemaItem">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12" Padding="0"
+                                BorderThickness="{x:Bind CardBorder}" CornerRadius="{x:Bind CardCorners}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid ColumnSpacing="12" Margin="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind Title}"
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       IsTextSelectionEnabled="True" />
+                                            <Border CornerRadius="10" Padding="8,1" VerticalAlignment="Center"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Visibility="{x:Bind HasGeneration}">
+                                                <TextBlock Text="{x:Bind GenerationText}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="{x:Bind Serial}" FontSize="11"
+                                                   Opacity="0.5" TextWrapping="Wrap"
+                                                   IsTextSelectionEnabled="True"
+                                                   Visibility="{x:Bind HasSerial}" />
+                                        <TextBlock Text="{x:Bind WrittenText}" FontSize="12" Margin="0,8,0,0"
+                                                   Opacity="0.75" TextWrapping="Wrap"
+                                                   IsTextSelectionEnabled="True" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                                        <StackPanel Spacing="1" Visibility="{x:Bind HasTape}">
+                                            <TextBlock Text="{x:Bind FreeText}" FontSize="12" Opacity="0.75"
+                                                       HorizontalAlignment="Right" />
+                                            <TextBlock Text="{x:Bind UsedText}" FontSize="12" Opacity="0.75"
+                                                       HorizontalAlignment="Right" />
+                                        </StackPanel>
+                                        <TextBlock Text="空间信息未知" FontSize="12" Opacity="0.75"
+                                                   Visibility="{x:Bind NoTape}"
+                                                   HorizontalAlignment="Right"
+                                                   ToolTipService.ToolTip="将此磁带装入磁带机后，即可记录其空间信息。" />
+                                        <TextBlock Text="{x:Bind FilesText}" FontSize="12" Opacity="0.75"
+                                                   HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                    <Button Grid.Column="2" Content="打开"
+                                            VerticalAlignment="Center"
+                                            Click="SchemaOpen_Click" />
+                                </Grid>
+                                <!-- usage bar, coloured as the drive page's capacity bar (red above 90%) -->
+                                <Grid Grid.Row="1" Height="3" Visibility="{x:Bind HasTape}"
+                                      Background="{ThemeResource ControlStrongStrokeColorDefaultBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{x:Bind UsedLength}" />
+                                        <ColumnDefinition Width="{x:Bind FreeLength}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                               Visibility="{x:Bind UsageNormal}" />
+                                    <Rectangle Fill="{ThemeResource SystemFillColorCriticalBrush}"
+                                               Visibility="{x:Bind UsageCritical}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

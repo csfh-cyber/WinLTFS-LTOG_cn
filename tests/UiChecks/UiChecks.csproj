@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/Components/MountCompletionState.cs" Link="MountCompletionState.cs" />
+    <Compile Include="../../src/Components/MountCompletionNotifications.cs" Link="MountCompletionNotifications.cs" />
+    <Compile Include="../../src/Components/UiDialogs.cs" Link="UiDialogs.cs" />
+    <Compile Include="../../src/Components/SchemaDisplay.cs" Link="SchemaDisplay.cs" />
+  </ItemGroup>
+</Project>
