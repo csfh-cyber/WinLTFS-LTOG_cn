@@ -24,12 +24,10 @@ so they stay readable on any LTFS-compatible system. Tape mounting is powered by
 [WinLtfs](https://github.com/rlaphoenix/WinLtfs).
 
 This repository is the Simplified Chinese edition of [rlaphoenix/LTOG](https://github.com/rlaphoenix/LTOG).
-It translates the interface and adds queued success dialogs after mounting and cleanly unmounting a tape.
-The original backend, engine version and tape operations are preserved.
+It provides a Chinese interface and queued completion dialogs for tape mounting and clean unmounting.
 
 Download the [verified Windows x64 installer](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe).
-The [release page](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029)
-includes Chinese release notes, SHA256 checksums and build provenance.
+SHA256 checksums are available on the [download page](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029).
 
 ## ⚠️ Data Loss Warning
 
@@ -63,8 +61,7 @@ tape drive, not when the file transfer finishes.
 
 ### Supported tape drives
 
-The following matrix comes from [WinLtfs v1.2.0](https://github.com/rlaphoenix/WinLtfs/blob/v1.2.0/README.md#supported-tape-drives),
-the engine pinned by this repository. It also matches the upstream `master` README checked on 2026-10-30.
+Tape-drive compatibility is provided by the [WinLtfs backend](https://github.com/rlaphoenix/WinLtfs/blob/v1.2.0/README.md#supported-tape-drives):
 
 | Brand | LTO-5 | LTO-6 | LTO-7 | LTO-8 | LTO-9 |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -73,7 +70,7 @@ the engine pinned by this repository. It also matches the upstream `master` READ
 | Tandberg | ✅ | ✅ | ❓ | ❓ | ❓ |
 | IBM | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-- ✅ means supported by the upstream whitelist or reported testing; this fork has not tested every model.
+- ✅ means supported by the upstream whitelist or reported hardware testing.
 - ❓ means compatibility still needs hardware testing.
 - ❌ means unsupported by the bundled tape backend; IBM drives require a different backend.
 
@@ -91,10 +88,9 @@ HPE's [official StoreOpen 3.6 Windows user guide](https://support.hpe.com/hpesc/
 states that StoreOpen was **discontinued on 31 July 2026 and is no longer available for download**.
 HPE retained the guide for existing users and removed its installation information.
 
-StoreOpen 3.6 did exist: its [official release notes](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)
+StoreOpen 3.6 did exist: its [official documentation](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)
 remain accessible. The missing material described by [WinLtfs upstream](https://github.com/rlaphoenix/WinLtfs/blob/b2bcbd2db15e26975133e412f49f609967177a36/README.md#background)
 is the **3.6.0 source code**: its maintainer reports finding no surviving source download, mirror or archive.
-No verifiable 3.6.0 source was obtained during this documentation update (2026-10-30).
 HPE's [download-availability guidance](https://support.hpe.com/hpesc/public/docDisplay?docId=sf000117077en_us&docLocale=en_US)
 also distinguishes missing portal versions from account or entitlement access; documentation availability
 does not establish that source code can be downloaded.
@@ -104,16 +100,13 @@ WinLtfs therefore continues from preserved **HPE StoreOpen 3.5.0 source**, credi
 It replaces the old UMFSDK/FUSE4Win filesystem integration with [WinFsp](https://winfsp.dev).
 LTOG provides the GUI on top of that engine; this Chinese edition adds UI translations and completion dialogs.
 
-All three WinLtfs branches were fetched with full history for this update:
+### Upstream source branches
 
-| Branch | Checked commit | Role |
-| --- | --- | --- |
-| [`hpe`](https://github.com/rlaphoenix/WinLtfs/tree/329f28ec46cb63263886540df8a1c0464e3826d6) | `329f28e` | Original HPE source lineage: the 3.4.2 import followed by 3.5.0 changes. Its [README](https://github.com/rlaphoenix/WinLtfs/blob/329f28ec46cb63263886540df8a1c0464e3826d6/README) identifies version 3.5.0. |
-| [`master`](https://github.com/rlaphoenix/WinLtfs/tree/b2bcbd2db15e26975133e412f49f609967177a36) | `b2bcbd2` | Maintained WinFsp port, command-line tools, device compatibility and documentation. It descends from `hpe`. |
-| [`feat-shellext`](https://github.com/rlaphoenix/WinLtfs/tree/ff6f0cec481e2dbda91ae7e169365358c7075e3c) | `ff6f0ce` | Experimental Explorer shell extension, branched from the main development line. It is not bundled in this Chinese release. |
-
-The current installer still pins **WinLtfs 1.2.0** and **WinFsp 2.1**. Reading newer upstream branches
-does not upgrade the bundled engine or add their newer features to this release.
+| Branch | Role |
+| --- | --- |
+| [`hpe`](https://github.com/rlaphoenix/WinLtfs/tree/hpe) | HPE StoreOpen 3.5.0 source baseline, including its original Windows integration and licensing. |
+| [`master`](https://github.com/rlaphoenix/WinLtfs/tree/master) | Maintained WinFsp port, command-line tools, device compatibility and documentation. |
+| [`feat-shellext`](https://github.com/rlaphoenix/WinLtfs/tree/feat-shellext) | Experimental Explorer shell extension, separate from the standard installer. |
 
 ## Building
 
@@ -129,9 +122,8 @@ Instructions below show how to individually build each part of the project.
 
 ### 1. WinLtfs (LTFS + WinFsp)
 
-The LTFS executables, tape backends, and `winfsp-x64.dll` are built by the
-[WinLtfs](https://github.com/rlaphoenix/WinLtfs) project and consumed here as a
-pinned release.
+The LTFS executables, tape backends, and `winfsp-x64.dll` are supplied by the
+[WinLtfs](https://github.com/rlaphoenix/WinLtfs) project.
 
 To build the engine from source yourself (MSYS2 + WinFsp toolchain), follow the
 build instructions in the [WinLtfs](https://github.com/rlaphoenix/WinLtfs) repo,
