@@ -26,8 +26,9 @@ so they stay readable on any LTFS-compatible system. Tape mounting is powered by
 This repository is the Simplified Chinese edition of [rlaphoenix/LTOG](https://github.com/rlaphoenix/LTOG).
 It provides a Chinese interface and queued completion dialogs for tape mounting and clean unmounting.
 
-Download the [verified Windows x64 installer](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe).
-SHA256 checksums are available on the [download page](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029).
+[Download the Windows x64 installer LTOG_cn_20261112.exe](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/LTOG_cn_20261112.exe)
+· [SHA256 checksum](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/SHA256SUMS.txt)
+· [Release notes](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/LTOG_cn_20261112)
 
 ## ⚠️ Data Loss Warning
 

@@ -9,13 +9,11 @@ LTOG 是 Windows 上的 LTO 磁带管理界面，通过 WinLtfs 将 LTFS 磁带�
 
 ## 安装包下载
 
-[GitHub Releases 中文版 2.0.0](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029)
-提供完整安装包与 SHA256 校验文件。
-[直接下载安装包](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe)。
+[下载 Windows x64 安装包 LTOG_cn_20261112.exe](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/LTOG_cn_20261112.exe)
+· [SHA256 校验文件](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/SHA256SUMS.txt)
+· [中文发布说明](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/LTOG_cn_20261112)
 
 安装包包含 Windows x64 程序、.NET / WinUI 运行时、WinLtfs 1.2.0 和 WinFsp 2.1 安装组件。
-可使用 [SHA256SUMS.txt](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/SHA256SUMS.txt)
-校验下载文件。
 
 ## 主要功能
 
