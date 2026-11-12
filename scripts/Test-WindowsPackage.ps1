@@ -1,6 +1,6 @@
 <#
 Validates a freshly built installer on an isolated Windows CI runner without tape hardware.
-Installs to a temporary directory, omits the driver task, and checks GUI startup.
+Installs to a temporary directory, omits the driver task, and checks GUI startup and idle shutdown.
 The installer still bundles the original checksum-verified WinFsp driver MSI.
 #>
 [CmdletBinding()]
@@ -47,7 +47,10 @@ try {
     Start-Sleep -Seconds 5
     $app.Refresh()
     if ($app.HasExited) { throw "LTOG exited after startup (exit $($app.ExitCode))." }
-    "PASS: installer payload verified; LTOG main window opened and remained running. No tape hardware tested." |
+    if (-not $app.CloseMainWindow()) { throw 'Could not request closure of the LTOG main window.' }
+    if (-not $app.WaitForExit(15000)) { throw 'LTOG did not exit after closing with no tape drives attached.' }
+    if ($app.ExitCode -ne 0) { throw "LTOG exited with code $($app.ExitCode) after the close request." }
+    "PASS: installer payload verified; LTOG started and closed successfully with no tape drives attached." |
         Tee-Object -FilePath $startupLog
 } catch {
     $_ | Out-String | Add-Content $startupLog
