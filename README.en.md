@@ -1,6 +1,6 @@
 <h1 align="center"><img src="src/Assets/icon.png" alt="" width="24" /> LTOG</h1>
 
-[简体中文](README.md) | English
+English | [简体中文](README.zh-CN.md)
 
 <p align="center">
   <a href="https://github.com/rlaphoenix/LTOG/blob/main/LICENSE">
