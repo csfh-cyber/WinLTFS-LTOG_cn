@@ -46,6 +46,7 @@ namespace Microsoft.UI.Windowing
 }
 namespace Microsoft.UI.Xaml.Controls
 {
+    public sealed class InfoBar { public bool IsOpen { get; set; } }
     public enum ContentDialogResult { None, Primary }
     public enum ContentDialogButton { Close }
     public sealed class FakeDispatcher

@@ -86,9 +86,16 @@
         </TitleBar>
         </Border>
 
-        <InfoBar x:Name="EnvBar" Grid.Row="1" Margin="12,8,12,0"
-                 IsOpen="False" Severity="Error" IsClosable="False"
-                 Visibility="Collapsed" />
+        <StackPanel Grid.Row="1">
+            <InfoBar x:Name="EnvBar" Margin="12,8,12,0" IsOpen="False"
+                     Severity="Error" IsClosable="False" Visibility="Collapsed" />
+            <InfoBar Margin="12,0" IsOpen="True" Severity="Warning"
+                     Title="磁带文件操作提醒"
+                     Message="向磁带盘写入文件时，请使用复制，避免移动或剪切。正常卸载并核验数据后，再决定是否删除源文件。" />
+            <InfoBar x:Name="TapeCloseNotice" Margin="12,0" Severity="Warning"
+                     Title="请先卸载磁带"
+                     Message="请在「磁带机」页面等待挂载或卸载操作完成，并卸载所有已挂载的磁带。全部卸载后，再关闭 LTOG。" />
+        </StackPanel>
 
         <!-- tab strip only (pages live in PagesHost): one tab per drive, shown on Tape Drives with 2+ drives -->
         <Border x:Name="TabStrip" Grid.Row="2" Visibility="Collapsed"

@@ -35,6 +35,7 @@ foreach ($relative in @('LTOG.exe', 'LTOG.dll', 'coreclr.dll', 'Microsoft.UI.Xam
 
 $app = $null
 $startupLog = Join-Path $logs 'startup-windows.log'
+$startupTime = Get-Date
 try {
     $app = Start-Process -FilePath (Join-Path $installDir 'LTOG.exe') -WorkingDirectory $installDir -PassThru
     $deadline = [DateTime]::UtcNow.AddSeconds(60)
@@ -56,6 +57,9 @@ try {
     $_ | Out-String | Add-Content $startupLog
     $crashLog = Join-Path $env:LOCALAPPDATA 'LTOG/crash.log'
     if (Test-Path $crashLog) { Copy-Item $crashLog (Join-Path $logs 'app-crash.log') }
+    Get-WinEvent -FilterHashtable @{ LogName = 'Application'; Id = 1000; StartTime = $startupTime } -ErrorAction SilentlyContinue |
+        Where-Object { $_.Message -match '\bLTOG\.exe\b' } |
+        ForEach-Object { $_.Message } | Tee-Object -FilePath $startupLog -Append
     throw
 } finally {
     if ($null -ne $app -and -not $app.HasExited) {

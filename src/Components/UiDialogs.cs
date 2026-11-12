@@ -9,16 +9,13 @@ internal static class UiDialogs
 {
     private static readonly ConditionalWeakTable<XamlRoot, SemaphoreSlim> Gates = new();
 
-    public static async Task<ContentDialogResult> ShowAsync(ContentDialog dialog,
-        CancellationToken cancellationToken = default, Func<bool>? shouldShow = null)
+    public static async Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken = default)
     {
         var gate = Gates.GetValue(dialog.XamlRoot, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(cancellationToken);
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            // The state behind a queued reminder may have changed while another dialog was open.
-            if (shouldShow?.Invoke() == false) return ContentDialogResult.None;
             using var registration = cancellationToken.Register(() =>
                 dialog.DispatcherQueue.TryEnqueue(() => dialog.Hide()));
             return await dialog.ShowAsync();

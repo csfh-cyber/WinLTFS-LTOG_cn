@@ -9,7 +9,7 @@
     <Compile Include="../../src/Components/MountCompletionState.cs" Link="MountCompletionState.cs" />
     <Compile Include="../../src/Components/MountCompletionNotifications.cs" Link="MountCompletionNotifications.cs" />
     <Compile Include="../../src/Components/UiDialogs.cs" Link="UiDialogs.cs" />
-    <Compile Include="../../src/Components/TapeSafetyPrompts.cs" Link="TapeSafetyPrompts.cs" />
+    <Compile Include="../../src/Components/TapeCloseProtection.cs" Link="TapeCloseProtection.cs" />
     <Compile Include="../../src/Components/SchemaDisplay.cs" Link="SchemaDisplay.cs" />
   </ItemGroup>
 </Project>

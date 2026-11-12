@@ -108,67 +108,32 @@ Check(SchemaDisplay.Location("Partition a starting from block 12") == "分区 a�
 Check(SchemaDisplay.Location("Not specified") == "未指定", "missing location display");
 Check(SchemaDisplay.Time("2026-10-29 at 12:30:00 (UTC)") == "2026-10-29 12:30:00 (UTC)", "timestamp display");
 
-// A close request is canceled immediately while the copy reminder owns the dialog slot.
-var safetyRoot = new FrameworkElement();
+// Use the live drive list and cancel close before returning to the window.
 var safetyWindow = new AppWindow();
+var safetyNotice = new InfoBar();
+var safetyDrives = new ObservableCollection<DriveViewModel>();
+var closeProtection = new TapeCloseProtection(safetyNotice, safetyDrives);
+var noDrivesClose = new AppWindowClosingEventArgs();
+closeProtection.OnClosing(safetyWindow, noDrivesClose);
+Check(!noDrivesClose.Cancel && !safetyNotice.IsOpen, "close with no drives was blocked");
+
 var activeDrive = new DriveViewModel();
-using (var safety = new TapeSafetyPrompts(safetyRoot, [new DriveViewModel(), activeDrive]))
+safetyDrives.Add(new DriveViewModel());
+safetyDrives.Add(activeDrive);
+foreach (var phase in new[] { MountPhase.Mounting, MountPhase.Mounted, MountPhase.Unmounting })
 {
-    int count = ContentDialog.Shown.Count;
-    var startup = safety.ShowStartupAsync();
-    Check(ContentDialog.Shown.Count == count + 1, "copy reminder missing on startup");
-    var copyReminder = ContentDialog.Shown[^1];
-    Check(copyReminder.Content.Contains("复制") && copyReminder.Content.Contains("删除源文件"),
-        "copy reminder did not explain how to preserve source files");
-    await safety.ShowStartupAsync();
-    Check(ContentDialog.Shown.Count == count + 1, "startup reminder was repeated");
-
-    foreach (var phase in new[] { MountPhase.Mounting, MountPhase.Mounted, MountPhase.Unmounting })
-    {
-        activeDrive.Phase = phase;
-        var closing = new AppWindowClosingEventArgs();
-        safety.OnClosing(safetyWindow, closing);
-        Check(closing.Cancel, $"close was allowed while a drive was {phase}");
-    }
-    Check(ContentDialog.Shown.Count == count + 1, "close reminder overlapped the startup reminder");
-    copyReminder.Hide();
-    await startup;
-    await WaitForCount(count + 2);
-    var closeReminder = ContentDialog.Shown[^1];
-    Check(closeReminder.Title == "请先卸载磁带", "close reminder did not tell the user to unmount");
-
-    var nextDialog = new ContentDialog { XamlRoot = safetyRoot.XamlRoot, Title = "格式化确认" };
-    var next = UiDialogs.ShowAsync(nextDialog);
-    closeReminder.Hide();
-    await WaitForCount(count + 3);
-    Check(ContentDialog.Shown[^1] == nextDialog, "repeated close requests queued extra reminders");
-
-    activeDrive.Phase = MountPhase.Idle;
-    var idleClose = new AppWindowClosingEventArgs();
-    safety.OnClosing(safetyWindow, idleClose);
-    Check(!idleClose.Cancel, "close was blocked after all drives became idle");
-    nextDialog.Hide();
-    await next;
+    activeDrive.Phase = phase;
+    safetyNotice.IsOpen = false;
+    var closing = new AppWindowClosingEventArgs();
+    closeProtection.OnClosing(safetyWindow, closing);
+    Check(closing.Cancel, $"close was allowed while a drive was {phase}");
+    Check(safetyNotice.IsOpen, $"unmount reminder was missing while a drive was {phase}");
 }
 
-// If unmount finishes while a dialog is open, discard the queued close reminder.
-activeDrive.Phase = MountPhase.Mounted;
-using (var safety = new TapeSafetyPrompts(safetyRoot, [activeDrive]))
-{
-    int count = ContentDialog.Shown.Count;
-    var startup = safety.ShowStartupAsync();
-    var copyReminder = ContentDialog.Shown[^1];
-    safety.OnClosing(safetyWindow, new AppWindowClosingEventArgs());
-    activeDrive.Phase = MountPhase.Idle;
-    var nextDialog = new ContentDialog { XamlRoot = safetyRoot.XamlRoot, Title = "格式化确认" };
-    var next = UiDialogs.ShowAsync(nextDialog);
-    copyReminder.Hide();
-    await startup;
-    await WaitForCount(count + 2);
-    Check(ContentDialog.Shown[^1] == nextDialog, "stale close reminder appeared after unmount finished");
-    nextDialog.Hide();
-    await next;
-}
+activeDrive.Phase = MountPhase.Idle;
+var idleClose = new AppWindowClosingEventArgs();
+closeProtection.OnClosing(safetyWindow, idleClose);
+Check(!idleClose.Cancel, "close was blocked after all drives became idle");
 
 Console.WriteLine($"Passed {assertions} UI notification and display checks (boundary fakes; no native rendering or tape I/O).");
 

@@ -14,16 +14,13 @@ public sealed partial class MainWindow : Window
     private string _page = "drives";   // title-bar switcher: drives, search, tapes, log, about, settings
     private readonly Dictionary<string, FrameworkElement> _drivePages = new();   // by device
     private readonly MountCompletionNotifications _completionNotifications;
-    private readonly TapeSafetyPrompts _tapeSafetyPrompts;
 
     public MainWindow()
     {
         InitializeComponent();
         _completionNotifications = new MountCompletionNotifications(Root, App.DriveStore.Drives);
         Closed += (_, _) => _completionNotifications.Dispose();
-        _tapeSafetyPrompts = new TapeSafetyPrompts(Root, App.DriveStore.Drives);
-        AppWindow.Closing += _tapeSafetyPrompts.OnClosing;
-        Closed += (_, _) => _tapeSafetyPrompts.Dispose();
+        AppWindow.Closing += new TapeCloseProtection(TapeCloseNotice, App.DriveStore.Drives).OnClosing;
         MainPages.SelectedItem = MainPages.Items[0];   // Drives; not in XAML, it'd fire before Tabs exists
         SystemBackdrop = new MicaBackdrop();
         ExtendsContentIntoTitleBar = true;
@@ -78,7 +75,6 @@ public sealed partial class MainWindow : Window
                 op.PreferredMinimumHeight = (int)(600 * scale);
                 op.PreferredMaximumWidth = (int)(1000 * scale);
             }
-            _ = _tapeSafetyPrompts.ShowStartupAsync();
             if (App.AutoRemount)
                 await App.DriveStore.RemountPersistedAsync();
         };
