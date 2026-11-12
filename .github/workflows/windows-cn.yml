@@ -73,9 +73,11 @@ jobs:
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           $installer = Get-Item "installer/Output/$env:INSTALLER_FILE"
-          $displayVersion = $installer.VersionInfo.ProductVersion
-          if ($env:RELEASE_NAME -and ($displayVersion -cne $env:RELEASE_NAME -or $installer.VersionInfo.FileVersion -cne $env:RELEASE_NAME)) {
-            throw "Installer version metadata must match $env:RELEASE_NAME."
+          # Inno Setup pads the PE version resource strings with trailing spaces.
+          $displayVersion = ([string]$installer.VersionInfo.ProductVersion).TrimEnd()
+          $fileVersion = ([string]$installer.VersionInfo.FileVersion).TrimEnd()
+          if ($env:RELEASE_NAME -and ($displayVersion -cne $env:RELEASE_NAME -or $fileVersion -cne $env:RELEASE_NAME)) {
+            throw "Expected installer version '$env:RELEASE_NAME'. Found ProductVersion '$displayVersion' and FileVersion '$fileVersion'."
           }
           $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $($installer.Name)" | Set-Content artifacts/SHA256SUMS.txt -Encoding utf8
