@@ -14,7 +14,10 @@
     pwsh -ExecutionPolicy Bypass -File .\build-installer.ps1
 
 .PARAMETER Version
-    Version embedded into the installer metadata and output filename. Default: 1.0.0.
+    Numeric installer version used for upgrade comparisons. Default: 1.0.0.
+
+.PARAMETER ReleaseName
+    Optional installer filename (without .exe) and display version.
 #>
 [CmdletBinding()]
 param(
@@ -23,7 +26,9 @@ param(
 
     # Installer/application version. Passed through to LTOG.iss.
     [ValidatePattern('^\d+\.\d+\.\d+(\.\d+)?$')]
-    [string]$Version = '1.0.0'
+    [string]$Version = '1.0.0',
+    [ValidatePattern('^[A-Za-z0-9_-]+$')]
+    [string]$ReleaseName
 )
 
 Set-StrictMode -Version Latest
@@ -138,7 +143,9 @@ Write-Host "    using $iscc"
 
 # --- 4. compile -----------------------------------------------------------
 Write-Step 'Compiling installer'
-& $iscc "/DMyAppVersion=$Version" $IssFile
+$defines = @("/DMyAppVersion=$Version")
+if ($ReleaseName) { $defines += "/DMyReleaseName=$ReleaseName" }
+& $iscc @defines $IssFile
 if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE." }
 
 $out = Get-ChildItem (Join-Path $Root 'Output') -Filter '*.exe' |

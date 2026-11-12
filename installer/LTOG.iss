@@ -37,8 +37,17 @@
 [Setup]
 AppId={{#MyAppId}
 AppName={#MyAppName}
+; Keep the registered version numeric for InitializeSetup's downgrade check.
 AppVersion={#MyAppVersion}
+#ifdef MyReleaseName
+AppVerName={#MyReleaseName}
+VersionInfoTextVersion={#MyReleaseName}
+VersionInfoProductTextVersion={#MyReleaseName}
+OutputBaseFilename={#MyReleaseName}
+#else
 AppVerName={#MyAppName} {#MyAppVersion}
+OutputBaseFilename=LTOG-{#MyAppVersion}-setup
+#endif
 VersionInfoVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
@@ -51,7 +60,6 @@ UninstallDisplayName={#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 LicenseFile=..\LICENSE
 OutputDir=Output
-OutputBaseFilename=LTOG-{#MyAppVersion}-setup
 SetupIconFile=..\dist\Assets\icon.ico
 ; Maximum ratio: ultra preset + 64 MB dictionary, one solid stream. The payload
 ; has many near-identical WinAppSDK DLLs and per-locale .mui files, so the large

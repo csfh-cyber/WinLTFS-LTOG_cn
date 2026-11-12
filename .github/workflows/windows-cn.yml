@@ -10,6 +10,8 @@ permissions:
 
 env:
   INSTALLER_VERSION: ${{ github.ref_name == 'LTOG_cn_20261112' && '2.0.1' || '2.0.0' }}
+  RELEASE_NAME: ${{ github.ref_name == 'LTOG_cn_20261112' && 'LTOG_cn_20261112' || '' }}
+  INSTALLER_FILE: ${{ github.ref_name == 'LTOG_cn_20261112' && 'LTOG_cn_20261112.exe' || 'LTOG-2.0.0-setup.exe' }}
 
 concurrency:
   group: windows-cn-${{ github.ref }}
@@ -56,25 +58,32 @@ jobs:
       - name: Build complete installer
         run: |
           New-Item -ItemType Directory -Force artifacts | Out-Null
-          pwsh -NoProfile -ExecutionPolicy Bypass -File build.ps1 -Version $env:INSTALLER_VERSION *>&1 | Tee-Object artifacts/build-windows.log
+          $buildArgs = @('-Version', $env:INSTALLER_VERSION)
+          if ($env:RELEASE_NAME) { $buildArgs += @('-ReleaseName', $env:RELEASE_NAME) }
+          pwsh -NoProfile -ExecutionPolicy Bypass -File build.ps1 @buildArgs *>&1 | Tee-Object artifacts/build-windows.log
           if ($LASTEXITCODE -ne 0) { throw 'Windows installer build failed.' }
 
       - name: Verify installation, startup and idle shutdown
         run: |
-          ./scripts/Test-WindowsPackage.ps1 -InstallerPath "installer/Output/LTOG-${env:INSTALLER_VERSION}-setup.exe" -LogDirectory artifacts
+          ./scripts/Test-WindowsPackage.ps1 -InstallerPath "installer/Output/$env:INSTALLER_FILE" -LogDirectory artifacts
 
       - name: Record build identity and checksum
         env:
           BUILD_COMMIT: ${{ github.sha }}
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          $installer = Get-Item "installer/Output/LTOG-${env:INSTALLER_VERSION}-setup.exe"
+          $installer = Get-Item "installer/Output/$env:INSTALLER_FILE"
+          $displayVersion = $installer.VersionInfo.ProductVersion
+          if ($env:RELEASE_NAME -and ($displayVersion -cne $env:RELEASE_NAME -or $installer.VersionInfo.FileVersion -cne $env:RELEASE_NAME)) {
+            throw "Installer version metadata must match $env:RELEASE_NAME."
+          }
           $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $($installer.Name)" | Set-Content artifacts/SHA256SUMS.txt -Encoding utf8
           @{
             commit = $env:BUILD_COMMIT
             run = $env:BUILD_URL
             installer = $installer.Name
+            display_version = $displayVersion
             sha256 = $hash
             bytes = $installer.Length
             validation = 'Windows x64 build, UI checks, silent installation, GUI startup and idle shutdown; no tape hardware I/O test'
@@ -86,7 +95,7 @@ jobs:
         with:
           name: LTOG-cn-windows-x64-${{ github.sha }}
           path: |
-            installer/Output/LTOG-${{ env.INSTALLER_VERSION }}-setup.exe
+            installer/Output/${{ env.INSTALLER_FILE }}
             artifacts/SHA256SUMS.txt
             artifacts/build-info.json
           if-no-files-found: error
@@ -137,6 +146,7 @@ jobs:
           run_url = f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
           assert info['commit'] == os.environ['GITHUB_SHA']
           assert info['run'] == run_url and info['installer'] == installer_name
+          assert info['display_version'] == os.environ['RELEASE_TAG']
           installer = package / 'installer/Output' / installer_name
           assert installer.stat().st_size == info['bytes']
           checksum = hashlib.sha256(installer.read_bytes()).hexdigest()
@@ -180,7 +190,7 @@ jobs:
             gh release create "$RELEASE_TAG" --draft --verify-tag --target "$GITHUB_SHA" \
               --title "$RELEASE_TAG" --notes-file release-notes.md
           fi
-          installer="LTOG-$INSTALLER_VERSION-setup.exe"
+          installer="$RELEASE_TAG.exe"
           gh release upload "$RELEASE_TAG" "release-assets/$installer" \
             release-assets/SHA256SUMS.txt release-assets/build-info.json --clobber
           gh release download "$RELEASE_TAG" --pattern "$installer" --dir uploaded-package
