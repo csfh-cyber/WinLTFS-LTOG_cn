@@ -133,7 +133,7 @@ jobs:
           package = Path('verified-package')
           info_file = package / 'artifacts/build-info.json'
           info = json.loads(info_file.read_text(encoding='utf-8-sig'))
-          installer_name = f"LTOG-{os.environ['INSTALLER_VERSION']}-setup.exe"
+          installer_name = f"{os.environ['RELEASE_TAG']}.exe"
           run_url = f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
           assert info['commit'] == os.environ['GITHUB_SHA']
           assert info['run'] == run_url and info['installer'] == installer_name
