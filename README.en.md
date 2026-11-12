@@ -94,9 +94,6 @@ remains accessible.
 A usable public download, mirror, or archive of the **HPE StoreOpen 3.6.0 source code** has yet to be located.
 WinLtfs therefore continues development on the available **HPE StoreOpen 3.5.0 source code**.
 
-WinLtfs replaces the old UMFSDK/FUSE4Win filesystem integration with [WinFsp](https://winfsp.dev).
-LTOG provides the GUI on top of that engine; this Chinese edition adds UI translations and completion dialogs.
-
 ## Building
 
 First clone and enter the repository:

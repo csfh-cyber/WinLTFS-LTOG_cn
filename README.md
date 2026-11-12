@@ -71,10 +71,6 @@ HPE StoreOpen 的官方 [3.6 版本文档](https://support.hpe.com/hpesc/public/
 目前尚未在互联网上找到 HPE StoreOpen **3.6.0 源码**的可用公开下载、镜像或归档。
 因此，WinLtfs 基于已有的 **HPE StoreOpen 3.5.0 源码**继续迭代。
 
-原 HPE Windows 移植依赖 UMFSDK / FUSE4Win。WinLtfs 将文件系统集成迁移至
-[WinFsp](https://winfsp.dev)，LTOG 再提供图形管理界面，本仓库在其上完成中文界面与完成提醒。
-原作者、HPE、IBM、OSR 及相关开源组件的版权和许可声明均予以保留。
-
 ## 基本使用与数据保护
 
 1. 安装完整安装包及所需 WinFsp 组件，确认 Windows 能识别磁带机。
