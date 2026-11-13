@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using LTOG;
 using LTOG.Core;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -106,6 +107,34 @@ Check(SchemaDisplay.Policy("Not permitted") == "不允许", "policy display");
 Check(SchemaDisplay.Location("Partition a starting from block 12") == "分区 a，起始块 12", "location display");
 Check(SchemaDisplay.Location("Not specified") == "未指定", "missing location display");
 Check(SchemaDisplay.Time("2026-10-29 at 12:30:00 (UTC)") == "2026-10-29 12:30:00 (UTC)", "timestamp display");
+
+// Use the live drive list and cancel close before returning to the window.
+var safetyWindow = new AppWindow();
+var safetyNotice = new InfoBar();
+var safetyDrives = new ObservableCollection<DriveViewModel>();
+var closeProtection = new TapeCloseProtection(safetyNotice, safetyDrives);
+var noDrivesClose = new AppWindowClosingEventArgs();
+closeProtection.OnClosing(safetyWindow, noDrivesClose);
+Check(!noDrivesClose.Cancel && !safetyNotice.IsOpen, "close with no drives was blocked");
+
+var activeDrive = new DriveViewModel();
+safetyDrives.Add(new DriveViewModel());
+safetyDrives.Add(activeDrive);
+foreach (var phase in new[] { MountPhase.Mounting, MountPhase.Mounted, MountPhase.Unmounting })
+{
+    activeDrive.Phase = phase;
+    safetyNotice.IsOpen = false;
+    var closing = new AppWindowClosingEventArgs();
+    closeProtection.OnClosing(safetyWindow, closing);
+    Check(closing.Cancel, $"close was allowed while a drive was {phase}");
+    Check(safetyNotice.IsOpen, $"unmount reminder was missing while a drive was {phase}");
+}
+
+activeDrive.Phase = MountPhase.Idle;
+var idleClose = new AppWindowClosingEventArgs();
+closeProtection.OnClosing(safetyWindow, idleClose);
+Check(!idleClose.Cancel, "close was blocked after all drives became idle");
+
 Console.WriteLine($"Passed {assertions} UI notification and display checks (boundary fakes; no native rendering or tape I/O).");
 
 static async Task WaitForCount(int count)

@@ -39,8 +39,14 @@ namespace Microsoft.UI.Xaml
     public sealed class XamlRoot { }
     public sealed class FrameworkElement { public XamlRoot XamlRoot { get; set; } = new(); }
 }
+namespace Microsoft.UI.Windowing
+{
+    public sealed class AppWindow { }
+    public sealed class AppWindowClosingEventArgs { public bool Cancel { get; set; } }
+}
 namespace Microsoft.UI.Xaml.Controls
 {
+    public sealed class InfoBar { public bool IsOpen { get; set; } }
     public enum ContentDialogResult { None, Primary }
     public enum ContentDialogButton { Close }
     public sealed class FakeDispatcher

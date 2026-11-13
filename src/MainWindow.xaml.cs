@@ -20,6 +20,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         _completionNotifications = new MountCompletionNotifications(Root, App.DriveStore.Drives);
         Closed += (_, _) => _completionNotifications.Dispose();
+        AppWindow.Closing += new TapeCloseProtection(TapeCloseNotice, App.DriveStore.Drives).OnClosing;
         MainPages.SelectedItem = MainPages.Items[0];   // Drives; not in XAML, it'd fire before Tabs exists
         SystemBackdrop = new MicaBackdrop();
         ExtendsContentIntoTitleBar = true;

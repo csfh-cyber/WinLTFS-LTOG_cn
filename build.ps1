@@ -35,6 +35,9 @@
 .PARAMETER Version
     Version embedded into the GUI assembly and installer.
 
+.PARAMETER ReleaseName
+    Optional installer filename (without .exe) and display version.
+
 .EXAMPLE
     pwsh -File build.ps1                 # full clean build of everything
 
@@ -46,7 +49,9 @@ param(
     [switch]$SkipNative,
     [switch]$NoInstaller,
     [ValidatePattern('^\d+\.\d+\.\d+(\.\d+)?$')]
-    [string]$Version = '2.0.0'
+    [string]$Version = '2.0.0',
+    [ValidatePattern('^[A-Za-z0-9_-]+$')]
+    [string]$ReleaseName
 )
 
 Set-StrictMode -Version Latest
@@ -160,8 +165,10 @@ if ($NoInstaller) {
     Step 'Skipping installer (-NoInstaller)'
 } else {
     Step 'Building Windows installer'
+    $installerArgs = @('-AutoInstallInnoSetup', '-Version', $Version)
+    if ($ReleaseName) { $installerArgs += @('-ReleaseName', $ReleaseName) }
     & pwsh -NoProfile -ExecutionPolicy Bypass `
-        -File (Join-Path $InstallerDir 'build-installer.ps1') -AutoInstallInnoSetup -Version $Version
+        -File (Join-Path $InstallerDir 'build-installer.ps1') @installerArgs
     if ($LASTEXITCODE -ne 0) { throw "installer build failed (exit $LASTEXITCODE)." }
 }
 
