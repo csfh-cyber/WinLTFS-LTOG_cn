@@ -1,6 +1,6 @@
 # LTOG 中文界面版
 
-简体中文 | [English](README.en.md)
+简体中文 | [English](README.md)
 
 LTOG 是 Windows 上的 LTO 磁带管理界面，通过 WinLtfs 将 LTFS 磁带挂载为盘符，
 便于在资源管理器中浏览、复制和管理文件。本仓库提供简体中文界面与挂载、卸载完成提醒。
@@ -9,13 +9,11 @@ LTOG 是 Windows 上的 LTO 磁带管理界面，通过 WinLtfs 将 LTFS 磁带�
 
 ## 安装包下载
 
-[GitHub Releases 中文版 2.0.0](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029)
-提供完整安装包与 SHA256 校验文件。
-[直接下载安装包](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe)。
+[下载 Windows x64 安装包 LTOG_cn_20261112.exe](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/LTOG_cn_20261112.exe)
+· [SHA256 校验文件](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/SHA256SUMS.txt)
+· [中文发布说明](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/LTOG_cn_20261112)
 
 安装包包含 Windows x64 程序、.NET / WinUI 运行时、WinLtfs 1.2.0 和 WinFsp 2.1 安装组件。
-可使用 [SHA256SUMS.txt](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/SHA256SUMS.txt)
-校验下载文件。
 
 ## 主要功能
 
@@ -60,37 +58,16 @@ WinLtfs 依据 SCSI INQUIRY 返回的产品 ID 匹配设备，而非只看外壳
 也可以使用 SCSI inquiry 工具核对。OEM 贴牌设备应按实际产品 ID 确认。
 发现表格遗漏、兼容性问题或新的实测结果，可向 [WinLtfs 上游反馈](https://github.com/rlaphoenix/WinLtfs/issues)。
 
-## HPE StoreOpen 停用背景与源码来源
-
-### 停止提供与下载下架时间
+## HPE StoreOpen 停用背景
 
 HPE 在 [StoreOpen 3.6 Windows 官方用户指南](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001247en_us&page=GUID-D7147C7F-2016-0901-084D-000000000473.html&docLocale=en_US)
 中明确说明：**HPE StoreOpen Software 已于 2026 年 7 月 31 日停止提供，且不再供下载。**
 指南保留供已安装用户参考，并移除了安装说明。
 
-### 为什么基于 3.5.0，而不是 3.6.0
+HPE StoreOpen 的官方 [3.6 版本文档](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)仍可查阅。
 
-HPE StoreOpen 3.6 确实存在，官方 [3.6 版本文档](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)
-仍可查阅。需要区分**版本文档、安装程序和可用于继续开发的源代码**。
-
-根据 [WinLtfs 上游背景说明](https://github.com/rlaphoenix/WinLtfs/blob/b2bcbd2db15e26975133e412f49f609967177a36/README.md#background)，
-维护者尚未找到 HPE StoreOpen **3.6.0 源码**的可用下载、镜像或归档。因此 WinLtfs 使用由
-[leavelet/ltfs-hp](https://github.com/leavelet/ltfs-hp) 留存的 **HPE StoreOpen 3.5.0 源码继续迭代**。
-这不表示 3.6 从未发布，也不表示现在能保证取得其安装包。
-HPE 的[版本下载可用性说明](https://support.hpe.com/hpesc/public/docDisplay?docId=sf000117077en_us&docLocale=en_US)
-另提示，门户展示的版本可能受产品可用性及账号授权影响；这类入口也不能证明源码可下载。
-
-原 HPE Windows 移植依赖 UMFSDK / FUSE4Win。WinLtfs 将文件系统集成迁移至
-[WinFsp](https://winfsp.dev)，LTOG 再提供图形管理界面，本仓库在其上完成中文界面与完成提醒。
-原作者、HPE、IBM、OSR 及相关开源组件的版权和许可声明均予以保留。
-
-### 三个上游分支的关系
-
-| 分支 | 用途 |
-| --- | --- |
-| [`hpe`](https://github.com/rlaphoenix/WinLtfs/tree/hpe) | HPE StoreOpen 3.5.0 源码基线，保留原始 Windows 移植及许可。 |
-| [`master`](https://github.com/rlaphoenix/WinLtfs/tree/master) | WinFsp 移植主线，维护引擎、命令行工具、兼容性和使用说明。 |
-| [`feat-shellext`](https://github.com/rlaphoenix/WinLtfs/tree/feat-shellext) | Windows 资源管理器 Shell 扩展实验分支，独立于标准安装包。 |
+目前尚未在互联网上找到 HPE StoreOpen **3.6.0 源码**的可用公开下载、镜像或归档。
+因此，WinLtfs 基于已有的 **HPE StoreOpen 3.5.0 源码**继续迭代。
 
 ## 基本使用与数据保护
 
@@ -107,7 +84,7 @@ HPE 的[版本下载可用性说明](https://support.hpe.com/hpesc/public/docDis
 
 ## 构建
 
-使用 Windows x64 和 .NET 8 SDK，详细步骤见[英文构建说明](README.en.md#building)。
+使用 Windows x64 和 .NET 8 SDK，详细步骤见[英文构建说明](README.md#building)。
 
 ```powershell
 dotnet build src/LTOG.csproj -c Release -p:Platform=x64

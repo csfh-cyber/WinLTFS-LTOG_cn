@@ -1,6 +1,6 @@
 <h1 align="center"><img src="src/Assets/icon.png" alt="" width="24" /> LTOG</h1>
 
-[简体中文](README.md) | English
+English | [简体中文](README.zh-CN.md)
 
 <p align="center">
   <a href="https://github.com/rlaphoenix/LTOG/blob/main/LICENSE">
@@ -26,8 +26,9 @@ so they stay readable on any LTFS-compatible system. Tape mounting is powered by
 This repository is the Simplified Chinese edition of [rlaphoenix/LTOG](https://github.com/rlaphoenix/LTOG).
 It provides a Chinese interface and queued completion dialogs for tape mounting and clean unmounting.
 
-Download the [verified Windows x64 installer](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/cn-v2.0.0-20261029/LTOG-2.0.0-setup.exe).
-SHA256 checksums are available on the [download page](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/cn-v2.0.0-20261029).
+[Download the Windows x64 installer LTOG_cn_20261112.exe](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/LTOG_cn_20261112.exe)
+· [SHA256 checksum](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/download/LTOG_cn_20261112/SHA256SUMS.txt)
+· [Release notes](https://github.com/csfh-cyber/WinLTFS-LTOG_cn/releases/tag/LTOG_cn_20261112)
 
 ## ⚠️ Data Loss Warning
 
@@ -82,31 +83,17 @@ and Tandberg `LTO-N HH`, where `N` is the generation. Check Device Manager → P
 Hardware Ids, or use a SCSI inquiry tool. OEM branding alone does not establish compatibility.
 Report additional models or test results to [WinLtfs](https://github.com/rlaphoenix/WinLtfs/issues).
 
-## HPE StoreOpen background and source lineage
+## HPE StoreOpen discontinuation
 
 HPE's [official StoreOpen 3.6 Windows user guide](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001247en_us&page=GUID-D7147C7F-2016-0901-084D-000000000473.html&docLocale=en_US)
 states that StoreOpen was **discontinued on 31 July 2026 and is no longer available for download**.
 HPE retained the guide for existing users and removed its installation information.
 
-StoreOpen 3.6 did exist: its [official documentation](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)
-remain accessible. The missing material described by [WinLtfs upstream](https://github.com/rlaphoenix/WinLtfs/blob/b2bcbd2db15e26975133e412f49f609967177a36/README.md#background)
-is the **3.6.0 source code**: its maintainer reports finding no surviving source download, mirror or archive.
-HPE's [download-availability guidance](https://support.hpe.com/hpesc/public/docDisplay?docId=sf000117077en_us&docLocale=en_US)
-also distinguishes missing portal versions from account or entitlement access; documentation availability
-does not establish that source code can be downloaded.
+The [official StoreOpen 3.6 documentation](https://support.hpe.com/hpesc/public/docDisplay?docId=sd00001245en_us&docLocale=en_US)
+remains accessible.
 
-WinLtfs therefore continues from preserved **HPE StoreOpen 3.5.0 source**, credited to
-[leavelet/ltfs-hp](https://github.com/leavelet/ltfs-hp), rather than a recovered 3.6.0 tree.
-It replaces the old UMFSDK/FUSE4Win filesystem integration with [WinFsp](https://winfsp.dev).
-LTOG provides the GUI on top of that engine; this Chinese edition adds UI translations and completion dialogs.
-
-### Upstream source branches
-
-| Branch | Role |
-| --- | --- |
-| [`hpe`](https://github.com/rlaphoenix/WinLtfs/tree/hpe) | HPE StoreOpen 3.5.0 source baseline, including its original Windows integration and licensing. |
-| [`master`](https://github.com/rlaphoenix/WinLtfs/tree/master) | Maintained WinFsp port, command-line tools, device compatibility and documentation. |
-| [`feat-shellext`](https://github.com/rlaphoenix/WinLtfs/tree/feat-shellext) | Experimental Explorer shell extension, separate from the standard installer. |
+A usable public download, mirror, or archive of the **HPE StoreOpen 3.6.0 source code** has yet to be located.
+WinLtfs therefore continues development on the available **HPE StoreOpen 3.5.0 source code**.
 
 ## Building
 
